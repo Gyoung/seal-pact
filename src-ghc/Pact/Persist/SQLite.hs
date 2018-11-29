@@ -86,7 +86,7 @@ persister = Persister {
   }
 
 data KeyTys k = KeyTys {
-  textTy :: Utf8,
+  -- textTy :: Utf8,
   inFun :: k -> SType,
   outTy :: RType,
   outFun :: SType -> IO k
@@ -117,9 +117,9 @@ expectTwo _ [a,b] = return (a,b)
 expectTwo desc v = throwDbError $ "Expected two-" ++ desc ++ " result, got: " ++ show v
 
 kTextTys :: KeyTys DataKey
-kTextTys = KeyTys "text" (SText . toUtf8 . asString) RText decodeText
+kTextTys = KeyTys  (SText . toUtf8 . asString) RText decodeText
 kIntTys :: KeyTys TxKey
-kIntTys = KeyTys "int" (SInt . fromIntegral) RInt decodeInt
+kIntTys = KeyTys  (SInt . fromIntegral) RInt decodeInt
 
 kTys :: Table k -> KeyTys k
 kTys DataTable {} = kTextTys
@@ -133,14 +133,13 @@ createTable' t e = do
   log e "DDL" $ "createTable: " ++ show t
   let tn = tableName t
   exec_ (conn e) $
-    "CREATE TABLE " <> tn <>
-    " (key " <> textTy (kTys t) <> " PRIMARY KEY NOT NULL UNIQUE, value TEXT);"
+    "CREATE TABLE KEY NOT NULL UNIQUE, value TEXT);"
   let mkstmt q = prepStmt (conn e) q
   ss <- TableStmts <$>
-           mkstmt ("INSERT OR REPLACE INTO " <> tn <> " VALUES (?,?)") <*>
-           mkstmt ("INSERT INTO " <> tn <> " VALUES (?,?)") <*>
-           mkstmt ("REPLACE INTO " <> tn <> " VALUES (?,?)") <*>
-           mkstmt ("SELECT VALUE FROM " <> tn <> " WHERE KEY = ?")
+           mkstmt ("INSERT OR REPLACE VALUES (?,?)") <*>
+           mkstmt ("INSERT INTO  VALUES (?,?)") <*>
+           mkstmt ("REPLACE INTO VALUES (?,?)") <*>
+           mkstmt ("SELECT VALUE FROM  WHERE KEY = ?")
   return $ e { tableStmts = M.insert tn ss (tableStmts e) }
 
 
