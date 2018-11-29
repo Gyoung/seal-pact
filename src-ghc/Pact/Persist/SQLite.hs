@@ -11,7 +11,7 @@ module Pact.Persist.SQLite
    Pragma(..))
   where
 
-import Control.Arrow
+-- import Control.Arrow
 import Control.Monad
 import Data.Aeson
 import qualified Data.Map.Strict as M
@@ -156,11 +156,7 @@ queryKeys' t kq e = do
   mapM (expectSing "field" >=> outFun (kTys t)) rs
 
 doQuery :: Table k -> Maybe (KeyQuery k) -> Utf8 -> [RType] -> SQLite -> IO [[SType]]
-doQuery t kq _ outParams e = do
-  let (whereQ,inParams) = second (map (inFun (kTys t))) $ compileQuery "key" kq
-      sql = "SELECT  FROM " <> tableName t <> " " <> whereQ <> " ORDER BY key"
-  -- log e (show sql)
-  qry (conn e) sql inParams outParams
+doQuery _ _ _ _ _ = undefined
 
 getStmts :: SQLite -> Table k -> IO TableStmts
 getStmts e t = case M.lookup (tableName t) (tableStmts e) of
