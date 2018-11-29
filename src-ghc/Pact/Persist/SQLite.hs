@@ -156,9 +156,9 @@ queryKeys' t kq e = do
   mapM (expectSing "field" >=> outFun (kTys t)) rs
 
 doQuery :: Table k -> Maybe (KeyQuery k) -> Utf8 -> [RType] -> SQLite -> IO [[SType]]
-doQuery t kq cols outParams e = do
+doQuery t kq _ outParams e = do
   let (whereQ,inParams) = second (map (inFun (kTys t))) $ compileQuery "key" kq
-      sql = "SELECT " <> cols <> " FROM " <> tableName t <> " " <> whereQ <> " ORDER BY key"
+      sql = "SELECT  FROM " <> tableName t <> " " <> whereQ <> " ORDER BY key"
   -- log e (show sql)
   qry (conn e) sql inParams outParams
 
